@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BSV Paper Wallet Generator and SPV Validator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Entropy Collection Overlay -->
+  <div id="entropyOverlay" style="position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.98);display:none;flex-direction:column;align-items:center;justify-content:center;">
+    <h2 style="color:#2563eb;">Add Entropy for Secure Wallet Generation</h2>
+    <p style="max-width:400px;text-align:center;">Move your mouse, slide your finger (mobile), or type random characters to help generate a secure wallet. Progress will fill as you add randomness.</p>
+    <div style="width:320px;max-width:90vw;margin:2rem 0;">
+      <div id="entropyProgressBar" style="height:24px;background:#e0e7ef;border-radius:12px;overflow:hidden;">
+        <div id="entropyProgress" style="height:100%;width:0%;background:#22b573;transition:width 0.2s;"></div>
+      </div>
+      <div id="entropyPercent" style="text-align:center;margin-top:0.5rem;font-weight:500;color:#2563eb;">0%</div>
+    </div>
+    <div id="entropyStatus" style="color:#888;font-size:1.1rem;margin-top:1rem;"></div>
+  </div>
+  <header class="app-header">
+    <div class="container">
+      <h1 class="app-title">BSV Paper Wallet Generator and SPV Validator</h1>
+      <!-- Optional: Theme toggle or logo here -->
+    </div>
+  </header>
+  <main class="container">
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="generateTab">Generate Wallet</button>
+      <button class="tab-btn" data-tab="importTab">Import Wallet / Transaction</button>
+      <button class="tab-btn" data-tab="spvTab">Merkle Proof Validator</button>
+    </nav>
+    <section class="card tab-content active" id="generateTab">
+      <div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:1.2rem;">
+        <label for="walletCount" style="font-weight:500;">Number of wallets:</label>
+        <input type="number" id="walletCount" min="1" max="20" value="1" style="width:4em;padding:0.4em 0.7em;border-radius:7px;border:1.5px solid #c3cfe2;font-size:1.1em;" />
+        <button id="generateWallet" class="primary-btn">Generate Wallets</button>
+        <button id="printWallet" class="secondary-btn" style="margin-left:1rem;">Print Paper Wallets</button>
+      </div>
+      <div id="walletsPrint"></div>
+    </section>
+    <section class="card tab-content" id="importTab">
+      <div class="wallet-section">
+        <h2>Import Wallet or Transaction</h2>
+        <input type="text" id="importInput" class="modern-input" placeholder="Enter WIF private key, BSV address, or TXID">
+        <div class="actions-row">
+          <button id="importBtn" class="primary-btn">Import & Show Details</button>
+          <button id="printImportBtn" class="secondary-btn">Print Wallet & UTXOs</button>
+          <button id="showBeefBtn" class="secondary-btn">Show BEEF JSON</button>
+          <span id="copyBeefBtn" title="Copy BEEF JSON" style="display:none;cursor:pointer;font-size:1.2em;margin-left:0.5rem;vertical-align:middle;">&#x2398;</span>
+          <span id="downloadBeefBtn" title="Download BEEF JSON" style="display:none;cursor:pointer;font-size:1.2em;margin-left:0.5rem;vertical-align:middle;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
+              <path d="M10 3v9m0 0l-3-3m3 3l3-3M4 15h12" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span id="copiedMsg" style="display:none;margin-left:0.5rem;color:green;font-size:0.95em;">Copied!</span>
+        </div>
+        <div id="importError" class="error-msg"></div>
+      </div>
+      <div id="importResult" style="display:none;">
+        <pre id="beefJsonDisplay" style="display:none;max-height:300px;overflow:auto;background:#f7f7f7;border:1px solid #ddd;padding:1rem;margin-top:1rem;"></pre>
+        <div class="wallet-section" id="importAddressSection">
+          <h3>Address</h3>
+          <div class="address-flex-col">
+            <div id="importAddressDiv"></div>
+            <div id="importAddressQR" class="qr-container"></div>
+          </div>
+        </div>
+        <div class="wallet-section" id="importUtxoSection">
+          <h3>UTXOs & SPV Info</h3>
+          <div class="table-responsive">
+            <table id="utxoTable">
+              <thead>
+                <tr>
+                  <th>TXID</th>
+                  <th>Vout</th>
+                  <th>Value (sats)</th>
+                  <th>Block Height</th>
+                  <th>Block Hash</th>
+                </tr>
+              </thead>
+              <tbody id="utxoTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="wallet-section" id="importTxSection" style="display:none;">
+          <h3>Transaction Details & SPV Info</h3>
+          <div id="txSummary"></div>
+          <div id="txInputs"></div>
+          <div id="txOutputs"></div>
+          <div id="txSpv"></div>
+        </div>
+      </div>
+    </section>
+    <section class="card tab-content" id="spvTab">
+      <div class="wallet-section">
+        <h2>Merkle Proof Validator</h2>
+        <div class="beef-upload-form">
+          <label for="beefFileInput" style="font-weight:500;display:block;margin-bottom:0.4em;">Upload a BEEF JSON file for Merkle proof validation:</label>
+          <input type="file" id="beefFileInput" accept="application/json,.json" aria-label="Upload BEEF JSON file" />
+          <button id="validateBeefBtn" class="primary-btn">Validate Merkle Proof</button>
+        </div>
+        <div style="margin: 1.2rem 0;">
+          <label for="beefJsonPaste" style="font-weight:500;display:block;margin-bottom:0.4em;">Paste BEEF JSON file contents here (must include txid, merkleProof, and blockHeader):</label>
+          <textarea id="beefJsonPaste" rows="7" style="width:100%;max-width:600px;font-family:monospace;font-size:1em;padding:0.7em;border-radius:7px;border:1.5px solid #c3cfe2;resize:vertical;" placeholder="Paste the contents of your BEEF JSON file here..."></textarea>
+          <button id="validateBeefPasteBtn" class="primary-btn" style="margin-top:0.5rem;">Validate Pasted Merkle Proof</button>
+        </div>
+        <div id="beefValidationError" class="error-msg" style="margin-top:1rem;"></div>
+        <div id="beefValidationResult" style="margin-top:1rem;"></div>
+      </div>
+    </section>
+    <section id="securityTips" class="card">
+      <h3>Security Tips</h3>
+      <ul>
+        <li>Run this page <b>offline</b> for maximum security.</li>
+        <li>Never share your private key with anyone.</li>
+        <li>Keep your paper wallet safe from fire, water, and prying eyes.</li>
+      </ul>
+      <h3>API Access Note</h3>
+      <p>If you encounter CORS errors when importing wallets or transactions, you can:</p>
+      <ul>
+        <li>Use a browser extension like "CORS Unblock" or "Allow CORS"</li>
+        <li>Run this app from a web server that supports CORS</li>
+        <li>Use the wallet generation feature offline (no API calls needed)</li>
+      </ul>
+    </section>
+  </main>
+  <script src="libs/bsv.min.js"></script>
+  <script src="libs/qrcode.min.js"></script>
+  <script src="script.js"></script>
+  <footer style="text-align:center;padding:1.2em 0 1.2em 0;font-size:0.98em;color:#888;background:none;">
+    This website makes use of the <a href="https://bitails.io/" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">Bitails API</a> for BSV blockchain requests.
+  </footer>
+</body>
+</html> 
