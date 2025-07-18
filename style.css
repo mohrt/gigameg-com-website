@@ -379,133 +379,72 @@ pre {
   }
 }
 @media print {
-  /* Wallet printing: only show #walletsPrint and its children */
-  body.print-wallets > *:not(.container),
-  body.print-wallets .container > *:not(#generateTab),
-  body.print-wallets #generateTab > *:not(#walletsPrint),
+  /* Wallet printing: hide non-wallet sections */
   body.print-wallets header,
-  body.print-wallets .app-header,
+  body.print-wallets nav,
   body.print-wallets .tabs-nav,
   body.print-wallets .tab-content:not(#generateTab),
   body.print-wallets #securityTips,
-  body.print-wallets footer,
-  body.print-wallets .actions-row,
-  body.print-wallets .modern-input,
-  body.print-wallets label,
-  body.print-wallets input,
-  body.print-wallets button,
-  body.print-wallets #importResult,
-  body.print-wallets #importTab,
-  body.print-wallets #spvTab {
+  body.print-wallets footer {
     display: none !important;
   }
   body.print-wallets #walletsPrint {
     display: block !important;
-    position: absolute !important;
-    left: 0; top: 0; width: 100vw; min-height: 100vh;
+    position: static !important;
+    width: 100vw !important;
     background: white !important;
     box-shadow: none !important;
     margin: 0 !important;
     padding: 0.5in !important;
     z-index: 9999 !important;
   }
-  body.print-wallets .wallet-info {
+
+  /* UTXO printing: hide non-import sections */
+  body.print-import header,
+  body.print-import nav,
+  body.print-import .tabs-nav,
+  body.print-import .tab-content:not(#importTab),
+  body.print-import #securityTips,
+  body.print-import footer {
     display: none !important;
   }
-  body.print-wallets .wallet-row {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    gap: 1.2rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin-bottom: 0.5rem !important;
+  body.print-import #importResult {
+    display: block !important;
+    position: static !important;
+    width: 100vw !important;
+    background: white !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0.5in !important;
+    z-index: 9999 !important;
   }
-  body.print-wallets .wallet-col {
-    flex: 1 1 0 !important;
+
+  /* Center wallet rows and columns in print */
+  #walletsPrint .wallet-row {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 4rem !important;
+    max-width: 700px !important;
+    margin: 0 auto 2.2rem auto !important;
+    width: auto !important;
+  }
+  #walletsPrint .wallet-col {
+    flex: 0 0 auto !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
-    font-size: 0.95em !important;
+    font-size: 1em !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-  body.print-wallets .key-text {
-    font-size: 0.95em !important;
-    margin-top: 0.3rem !important;
-    word-break: break-all !important;
-    text-align: center !important;
-  }
-  body.print-wallets .qr-container {
-    margin: 0.5rem 0 0.3rem 0 !important;
-    padding: 0.3rem !important;
-    border-radius: 8px !important;
-    box-shadow: none !important;
-    background: #fff !important;
-  }
-  body.print-wallets .wallet-print {
-    border-bottom: 2px dotted #888 !important;
-    margin-bottom: 0.7rem !important;
-    padding-bottom: 0.7rem !important;
-    page-break-inside: avoid !important;
-    background: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-  body.print-wallets .wallet-print:nth-of-type(4n) {
-    page-break-after: always !important;
-    border-bottom: none !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-  }
-  body.print-wallets .wallet-print:last-child {
-    border-bottom: none !important;
-  }
-  body.print-wallets #generateTab > div:first-child {
-    display: none !important;
   }
 
-  /* UTXO printing: only show #importResult and its children */
-  body.print-import > *:not(.container),
-  body.print-import .container > *:not(#importTab),
-  body.print-import #importTab > *:not(#importResult),
-  body.print-import header,
-  body.print-import .app-header,
-  body.print-import .tabs-nav,
-  body.print-import .tab-content:not(#importTab),
-  body.print-import #securityTips,
-  body.print-import footer,
-  body.print-import .actions-row,
-  body.print-import .modern-input,
-  body.print-import label,
-  body.print-import input,
-  body.print-import button,
-  body.print-import #walletsPrint,
-  body.print-import #generateTab,
-  body.print-import #spvTab {
+  /* Hide the security tip and wallet controls in print */
+  #securityTipBox,
+  #generateTab > div:first-child {
     display: none !important;
-  }
-  body.print-import #importResult {
-    display: block !important;
-    position: absolute !important;
-    left: 0; top: 0; width: 100vw; min-height: 100vh;
-    background: white !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 0.5in !important;
-    z-index: 9999 !important;
-  }
-  body.print-import #importResult > :not(#importAddressSection):not(#importUtxoSection) {
-    display: none !important;
-  }
-  body.print-import #importAddressSection,
-  body.print-import #importUtxoSection {
-    display: block !important;
   }
 } 

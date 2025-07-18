@@ -60,22 +60,19 @@ window.addEventListener('DOMContentLoaded', function () {
   let lastImportType = null;
   let lastImportData = null;
 
-  // Always attach print event if button exists
+  // Print Wallets
+  let isPrinting = false;
+
   const printWalletBtn = document.getElementById('printWallet');
-  let isWalletPrinting = false;
   if (printWalletBtn) {
-    printWalletBtn.onclick = null;
-    printWalletBtn.addEventListener('click', function(e) {
-      if (isWalletPrinting) return;
-      isWalletPrinting = true;
+    printWalletBtn.addEventListener('click', function() {
+      if (isPrinting) return;
+      isPrinting = true;
       printWalletBtn.disabled = true;
       document.body.classList.add('print-wallets');
-      setTimeout(() => window.print(), 0);
-    });
-    window.addEventListener('afterprint', function() {
-      document.body.classList.remove('print-wallets');
-      isWalletPrinting = false;
-      printWalletBtn.disabled = false;
+      setTimeout(() => {
+        window.print();
+      }, 100);
     });
   }
 
@@ -102,11 +99,7 @@ window.addEventListener('DOMContentLoaded', function () {
         <div class="key-text">${wif}</div>
       </div>
     `;
-    // Info below both columns
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'wallet-info';
-    infoDiv.innerHTML = '<b>To safeguard this wallet:</b> Print and store in a safe place. Never share your private key. Anyone with access to the private key can spend your BSV.';
-    walletDiv.appendChild(infoDiv);
+    // Removed wallet-info safeguard notice
     return walletDiv;
   }
 
@@ -560,11 +553,15 @@ window.addEventListener('DOMContentLoaded', function () {
     });
     if (printImportBtn) {
       printImportBtn.addEventListener('click', function() {
+        printImportBtn.disabled = true;
         document.body.classList.add('print-import');
-        window.print();
+        setTimeout(() => {
+          window.print();
+        }, 100);
       });
       window.addEventListener('afterprint', function() {
         document.body.classList.remove('print-import');
+        printImportBtn.disabled = false;
       });
     }
     downloadBeefBtn.addEventListener('click', function() {
